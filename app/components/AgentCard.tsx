@@ -63,7 +63,8 @@ export default function AgentCard() {
   }
 
   return (
-    <div className="w-96 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col">
+    <div className="w-96 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col min-h-[420px] animate-border-glow">
+
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
@@ -73,11 +74,17 @@ export default function AgentCard() {
             <p className="text-xs text-muted">Ask me anything about Ishu</p>
           </div>
         </div>
-        <span className="text-[10px] font-bold tracking-widest text-emerald-500">LIVE</span>
+        <span className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-live-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          <span className="text-[10px] font-bold tracking-widest text-emerald-500">LIVE</span>
+        </span>
       </div>
 
       {/* Messages */}
-      <div className="flex flex-col gap-3 px-5 py-4 overflow-y-auto max-h-80 min-h-[180px]">
+      <div className="flex flex-col gap-3 px-5 py-4 overflow-y-auto max-h-80 min-h-[300px]">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
             <div

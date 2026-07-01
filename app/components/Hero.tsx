@@ -16,35 +16,42 @@ export default function Hero() {
 
           {/* ── Left: Text ── */}
           <div className="flex-1">
+            {/* Profile photo */}
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="flex items-center gap-3 mb-7"
+              className="mb-6"
             >
-              <div className="w-[52px] h-[52px] rounded-full overflow-hidden shrink-0 ring-2 ring-accent/30">
+              <div className="w-[180px] h-[180px] rounded-full overflow-hidden ring-4 ring-accent/20 shadow-xl shadow-accent/10">
                 <Image
                   src="/ishu.png"
                   alt="Ishu Singh"
-                  width={52}
-                  height={52}
+                  width={180}
+                  height={180}
                   className="object-cover object-top w-full h-full"
                   priority
                 />
               </div>
-              <div>
-                <p className="font-semibold text-foreground">Hello, I am Ishu Singh!</p>
-                <p className="text-xs text-accent uppercase tracking-widest font-medium">
-                  I help SaaS companies automate operations
-                </p>
-              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-7"
+            >
+              <p className="font-semibold text-foreground">Hello, I am Ishu Singh!</p>
+              <p className="text-xs text-accent uppercase tracking-widest font-medium mt-1">
+                I help SaaS companies automate operations
+              </p>
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="text-4xl sm:text-5xl font-bold text-foreground leading-tight tracking-tight max-w-xl"
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight max-w-xl"
             >
               AI & Agentic Automation Specialist —{" "}
               <span className="text-accent">Enterprise MCP Strategy & Integration.</span>

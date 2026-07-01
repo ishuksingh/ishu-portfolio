@@ -10,6 +10,9 @@ export default function ThemeToggle() {
     if (stored === "dark") {
       document.documentElement.classList.add("dark");
       setDark(true);
+    } else {
+      document.documentElement.classList.remove("dark");
+      setDark(false);
     }
   }, []);
 

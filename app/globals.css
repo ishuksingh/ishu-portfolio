@@ -71,6 +71,25 @@ body {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 0px 0px rgba(59,130,246,0), 0 0 20px 2px rgba(59,130,246,0.08); }
+  50%       { box-shadow: 0 0 0px 1px rgba(59,130,246,0.4), 0 0 32px 6px rgba(59,130,246,0.15); }
+}
+
+@keyframes live-ping {
+  0%   { transform: scale(1); opacity: 0.8; }
+  70%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.animate-border-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+.animate-live-ping {
+  animation: live-ping 1.8s ease-out infinite;
+}
+
 .hero-gradient {
   background: linear-gradient(-45deg, var(--accent-light), var(--background), var(--surface), var(--accent-light));
   background-size: 400% 400%;
