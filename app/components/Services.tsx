@@ -39,7 +39,7 @@ export default function Services() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h2 className="text-3xl font-bold text-foreground mb-2">Services</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Services</h2>
           <p className="text-muted mb-12">What I can help you with.</p>
         </motion.div>
         <div className="grid sm:grid-cols-2 gap-6">
@@ -50,7 +50,7 @@ export default function Services() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className={`relative bg-card rounded-2xl p-8 border border-border hover:border-accent/50 transition-colors ${
+              className={`relative bg-card rounded-2xl p-6 sm:p-8 border border-border hover:border-accent/50 transition-colors ${
                 s.comingSoon ? "opacity-60" : ""
               }`}
             >

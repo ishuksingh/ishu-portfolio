@@ -63,7 +63,7 @@ export default function AgentCard() {
   }
 
   return (
-    <div className="w-96 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col min-h-[420px] animate-border-glow">
+    <div className="w-full sm:w-96 max-w-sm rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col min-h-[360px] sm:min-h-[420px] animate-border-glow">
 
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
@@ -84,7 +84,7 @@ export default function AgentCard() {
       </div>
 
       {/* Messages */}
-      <div className="flex flex-col gap-3 px-5 py-4 overflow-y-auto max-h-80 min-h-[300px]">
+      <div className="flex flex-col gap-3 px-5 py-4 overflow-y-auto max-h-60 sm:max-h-80 min-h-[220px] sm:min-h-[300px]">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
             <div

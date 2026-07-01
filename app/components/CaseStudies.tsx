@@ -221,7 +221,7 @@ function CaseStudyCard({
 }) {
   return (
     <div
-      className={`flex-shrink-0 w-[300px] sm:w-[340px] bg-card rounded-2xl border overflow-hidden flex flex-col snap-start cursor-pointer transition-colors ${
+      className={`flex-shrink-0 w-[275px] sm:w-[300px] md:w-[340px] bg-card rounded-2xl border overflow-hidden flex flex-col snap-start cursor-pointer transition-colors ${
         active ? "border-accent" : "border-border hover:border-accent/40"
       }`}
       onClick={onClick}
@@ -307,10 +307,11 @@ export default function CaseStudies() {
           className="flex items-end justify-between mb-8"
         >
           <div>
-            <h2 className="text-3xl font-bold text-foreground mb-2">Case Studies</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Case Studies</h2>
             <p className="text-muted">Real integration problems, solved end-to-end.</p>
           </div>
           <p className="text-xs text-muted hidden sm:block">Click a card to explore →</p>
+          <p className="text-xs text-muted sm:hidden">Swipe & tap to explore →</p>
         </motion.div>
 
         {/* Carousel */}

@@ -11,14 +11,14 @@ const stats = [
 export default function About() {
   return (
     <section id="about" className="py-24 px-6 bg-background">
-      <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-16 items-center">
+      <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, x: -32 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h2 className="text-3xl font-bold text-foreground mb-6">About me</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">About me</h2>
           <p className="text-muted leading-relaxed mb-4">
             I&apos;m Ishu Singh — a Workato-certified Integration and Automation
             Consultant with 8+ years of experience designing enterprise integration
@@ -54,7 +54,7 @@ export default function About() {
               transition={{ duration: 0.5, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
               className="border-l-4 border-accent pl-6"
             >
-              <p className="text-4xl font-bold text-foreground">{s.value}</p>
+              <p className="text-3xl sm:text-4xl font-bold text-foreground">{s.value}</p>
               <p className="text-muted mt-1">{s.label}</p>
             </motion.div>
           ))}

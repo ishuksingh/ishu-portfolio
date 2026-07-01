@@ -56,7 +56,7 @@ export default function Testimonials() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h2 className="text-3xl font-bold text-foreground mb-2">What people say</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">What people say</h2>
           <p className="text-muted mb-12">From clients and collaborators.</p>
         </motion.div>
 

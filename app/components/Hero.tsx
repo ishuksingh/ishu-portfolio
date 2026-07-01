@@ -12,7 +12,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--accent-light)_0%,_transparent_60%)] opacity-40" />
 
       <div className="relative max-w-5xl mx-auto px-6 py-32 w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
+        <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
 
           {/* ── Left: Text ── */}
           <div className="flex-1">
@@ -23,7 +23,7 @@ export default function Hero() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="mb-6"
             >
-              <div className="w-[180px] h-[180px] rounded-full overflow-hidden ring-4 ring-accent/20 shadow-xl shadow-accent/10">
+              <div className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] rounded-full overflow-hidden ring-4 ring-accent/20 shadow-xl shadow-accent/10">
                 <Image
                   src="/ishu.png"
                   alt="Ishu Singh"
@@ -61,7 +61,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-5 text-lg text-muted max-w-lg leading-relaxed"
+              className="mt-5 text-base sm:text-lg text-muted max-w-lg leading-relaxed"
             >
               Workato consulting, training, and agentic platform architecture for teams
               that want production-ready automation — not just a proof of concept.
