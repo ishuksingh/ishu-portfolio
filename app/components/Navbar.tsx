@@ -17,6 +17,7 @@ export default function Navbar() {
         <span className="font-semibold text-foreground tracking-tight">Ishu Singh</span>
         <div className="flex items-center gap-6 text-sm text-muted">
           <a href="#services" className="hover:text-foreground transition-colors">Services</a>
+          <a href="#case-studies" className="hover:text-foreground transition-colors">Case Studies</a>
           <a href="#about" className="hover:text-foreground transition-colors">About</a>
           <a href="#testimonials" className="hover:text-foreground transition-colors">Testimonials</a>
           <a href="#contact" className="hover:text-foreground transition-colors">Contact</a>
