@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
+/* ── Color tokens ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --surface:    #f4f4f5;
+  --card:       #ffffff;
+  --border:     #e4e4e7;
+  --foreground: #18181b;
+  --muted:      #71717a;
+  --accent:     #2563eb;
+  --accent-light: #dbeafe;
+}
+
+.dark {
+  --background: #0c0c0e;
+  --surface:    #18181b;
+  --card:       #27272a;
+  --border:     #3f3f46;
+  --foreground: #fafafa;
+  --muted:      #a1a1aa;
+  --accent:     #3b82f6;
+  --accent-light: #1e3a5f;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background:   var(--background);
+  --color-surface:      var(--surface);
+  --color-card:         var(--card);
+  --color-border:       var(--border);
+  --color-foreground:   var(--foreground);
+  --color-muted:        var(--muted);
+  --color-accent:       var(--accent);
+  --color-accent-light: var(--accent-light);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── Animations ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.hero-gradient {
+  background: linear-gradient(-45deg, var(--accent-light), var(--background), var(--surface), var(--accent-light));
+  background-size: 400% 400%;
+  animation: gradient-shift 12s ease infinite;
 }
