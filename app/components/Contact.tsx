@@ -35,7 +35,9 @@ export default function Contact() {
             Connect on LinkedIn
           </a>
           <a
-            href="mailto:ishu.kumar007@gmail.com"
+            href="https://mail.google.com/mail/?view=cm&to=ishu.kumar007@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
             className="border border-border text-foreground px-6 py-3 rounded-full font-medium hover:border-accent hover:text-accent transition-colors"
           >
             Send an email
