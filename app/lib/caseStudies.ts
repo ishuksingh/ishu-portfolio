@@ -45,6 +45,23 @@ export const CASE_STUDIES: CaseStudy[] = [
     stack: ["Workato API Platform", "NetSuite", "Salesforce CPQ", "Splunk"],
   },
   {
+    id: "customer-account-sync",
+    title: "NetSuite-to-Salesforce Customer Account Sync",
+    tags: ["account sync", "netsuite", "salesforce", "delinquency", "batch update", "scheduled", "retry", "fault-tolerant", "customers", "workato", "composite api"],
+    summary:
+      "Built a scheduled Workato integration that syncs NetSuite customer delinquency data — overdue days, amounts, and override reasons — into Salesforce Accounts in bulk, with a fault-tolerant individual retry layer for any batch failures.",
+    problem:
+      "Finance and collections teams relied on NetSuite as the system of record for customer payment status — delinquency flags, days overdue, outstanding amounts, and override reasons — but Salesforce Account records showed stale data. Without a reliable sync, sales and CS reps were making account decisions with outdated financial context, and collections workflows couldn't be triggered from Salesforce reliably.",
+    solution:
+      "Built a scheduled recipe that runs on a recurring cadence: (1) Queries a NetSuite saved search to pull all customer records with delinquency fields (Delinquent_Checkbox, Days_Overdue, Over_Due_Amount, Delinquency_Override_Reason). (2) Maps each NetSuite customer to its Salesforce Account using a stored Salesforce ID on the NetSuite record. (3) Submits all records in a single Salesforce Composite Batch Update for efficiency. (4) If any records fail the batch, a per-record retry loop re-attempts each failure individually — isolating errors without blocking the successful records. (5) If individual retries also fail, an error notification fires with the affected record details. Edge cases handled: empty NetSuite result sets skip all Salesforce calls cleanly, and multi-value delinquency override reasons are correctly flattened before the batch write.",
+    outcomes: [
+      "Real-time delinquency context available in Salesforce for all account-facing teams",
+      "Batch + individual retry pattern tolerates partial API failures with zero data loss",
+      "5 test cases covering happy path, partial failure, full failure, empty results, and multi-value fields",
+    ],
+    stack: ["Workato", "NetSuite", "Salesforce"],
+  },
+  {
     id: "order-creation-engine",
     title: "Multi-Type Order Creation Engine",
     tags: ["order creation", "revenue", "promo", "free trial", "opportunity", "netsuite", "salesforce", "cpq", "workato", "python", "deduplication", "idempotent"],

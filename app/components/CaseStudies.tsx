@@ -5,6 +5,171 @@ import { useState } from "react";
 
 const caseStudies = [
   {
+    id: "workato-enterprise-platform",
+    tag: "Platform Engineering · AI Strategy",
+    title: "Workato ONE — Enterprise Governance & AI-Native MCP Strategy",
+    summary:
+      "Architected Samsara's enterprise integration platform governance from scratch — designing a SCIM+SAML RBAC framework for 80+ BizTech users across 4 business units, building Workato-native MCPs as part of a 47-tool enterprise AI catalog, wiring full observability via Splunk log streaming, and co-designing an MCP Registry built on Amazon Bedrock AgentCore — using AgentCore Registry, Gateway, and Identity for governed, zero-trust AI tool discovery at enterprise scale.",
+    stack: ["Workato ONE", "Okta SCIM/SAML", "AWS Bedrock AgentCore", "Claude AI"],
+    problem:
+      "Samsara's integration platform (Workato ONE) was scaling fast across four business units — GTMS, CorpSys, IT+PMO, and IDEA — with no unified access control model. Developers had inconsistent permissions across Dev, Test, and Prod environments, production deployments were ad-hoc with no gating, and there was no audit trail for platform activity. In parallel, the AI team needed to expose internal system data to Claude agents at enterprise scale — but there was no governed way to register, approve, or discover MCP tools, no security review layer, and no catalog for the organization to build on.",
+    flows: [
+      {
+        title: "RBAC 2.0 — Identity-Driven Access Control",
+        steps: [
+          {
+            label: "SCIM Provisioning via Okta",
+            detail:
+              "Users are auto-provisioned and deprovisioned in Workato through Okta SCIM — no manual account creation. A user assigned the Workato app in Okta is created in the platform; deactivation in Okta immediately revokes platform access. This eliminated the onboarding/offboarding gap that previously left stale accounts.",
+          },
+          {
+            label: "SAML-Driven Environment Role Assignment",
+            detail:
+              "Environment roles — Samsara Manager, Samsara Developer, Samsara View Only, and Samsara Release Manager — are assigned per environment (Dev/Test/Prod) via SAML attributes pushed from Okta at login. No manual role grants in the platform; role changes take effect on next login.",
+          },
+          {
+            label: "Collaborator Groups & Project-Level Access",
+            detail:
+              "Four collaborator group types were standardized across all teams: TeamAdmins (Project Admin access), Devs (Advanced Builder access), ViewOnly (read-only), and ProdOps (production deployment window only). Groups are assigned to Workato projects to grant project-scoped permissions, independent of environment role — enabling fine-grained control without environment-level over-permission.",
+          },
+          {
+            label: "Production Deployment Model",
+            detail:
+              "Production access follows a time-bounded deployment window model. A designated Release Manager temporarily elevates a deployer by granting the Samsara Manager env role and adding them to the ProdOps collaborator group. After deployment, both are revoked — returning the deployer to View Only in prod. This replaces standing prod access with just-in-time privilege escalation.",
+          },
+        ],
+      },
+      {
+        title: "Workato MCP Layer — Native AI Tool Surface",
+        steps: [
+          {
+            label: "Salesforce & Stripe MCPs",
+            detail:
+              "Two Workato APIM-hosted MCPs expose CRM and billing data to Claude agents: Salesforce (accounts, opportunities, cases, and orders) and Stripe (billing and subscription data). Both route through Workato's API Management layer with OAuth — making Samsara's existing Workato recipes the authentication and data access boundary rather than direct system credentials.",
+          },
+          {
+            label: "3PL Operations MCP",
+            detail:
+              "A Workato MCP powers the Item Receipt Bot — processing inbound 3PL API feeds and syncing received inventory into NetSuite and Salesforce in real time. This MCP also underpins returns automation, making it one of the highest-value AI tool surfaces in the supply chain org. AI agents can query 3PL receipts, trigger sync jobs, and surface return status without direct system access.",
+          },
+          {
+            label: "Atlassian Jira & Zendesk MCPs",
+            detail:
+              "Atlassian Jira is available as a Workato-hosted MCP, enabling agents to create, update, and query Jira issues through the same APIM governance layer. Zendesk is also exposed via Workato, giving Claude agents access to customer support ticket data — allowing support workflows and ticket intelligence to be surfaced without direct platform access.",
+          },
+        ],
+      },
+      {
+        title: "Agentic Observability — Genie Conversation Logging",
+        steps: [
+          {
+            label: "Genie Conversation Logging to AWS S3",
+            detail:
+              "Databricks Genie conversation logs — every user query, agent response, and tool invocation across the MCP-connected Genie spaces — are streamed to an AWS S3 bucket. This creates a durable, queryable record of how AI agents are being used across finance, supply chain, and operations data domains.",
+          },
+          {
+            label: "Langfuse Ingestion for LLM Observability",
+            detail:
+              "The S3 conversation logs are ingested into Langfuse, an open-source LLM observability platform. This gives the team full visibility into agentic traces — latency per tool call, token usage, failure rates, and query patterns — enabling continuous evaluation and improvement of agent behavior across the enterprise MCP catalog.",
+          },
+          {
+            label: "Closing the Feedback Loop",
+            detail:
+              "With Langfuse traces in place, the team can identify which MCP tools are most queried, where agents fail or hallucinate, and which Genie spaces need schema or prompt tuning. This observability layer turns the MCP catalog from a static tool registry into a continuously improving AI platform.",
+          },
+        ],
+      },
+      {
+        title: "MCP Registry — Governed AI Tool Discovery",
+        diagramId: "mcp-registry",
+        steps: [
+          {
+            label: "Built on Amazon Bedrock AgentCore",
+            detail:
+              "The registry is built on three Amazon Bedrock AgentCore primitives: AgentCore Registry — the fully managed system of record storing every tool's name, endpoint, schemas, versions, and approval state with IAM-gated writes; AgentCore Gateway — a managed AI gateway that provides a single secure entry point for agentic traffic, converting APIs and services into MCP-compatible tools and routing agent-to-tool calls through one governed endpoint; and AgentCore Identity — JWT-based identity and credential management that propagates the original user's identity across every hop in the request chain using zero-trust OAuth flows.",
+          },
+          {
+            label: "Lifecycle Governance: Draft → Approved",
+            detail:
+              "Every MCP submission follows a governed lifecycle: tool owners submit a descriptor (name, endpoint, tool functions, JSON schemas) through the Admin Console, creating a Draft record in AgentCore Registry. A platform admin reviews and transitions it — Draft → Pending → Approved (or Rejected). Versioning prevents concurrent overwrites. Deprecated tools remain queryable but are excluded from active discovery.",
+          },
+          {
+            label: "Semantic Search for Intent-Based Discovery",
+            detail:
+              "Approved MCPs are indexed for semantic search against their full tool descriptions — not just names. An agent or developer searching 'meeting' surfaces Granola and Google Calendar without knowing exact tool names. AgentCore Gateway then routes the agent's request to the approved tool through a single managed endpoint, with AgentCore Identity ensuring the caller's identity is preserved and scoped correctly end-to-end.",
+          },
+          {
+            label: "47-Tool Enterprise MCP Catalog",
+            detail:
+              "The catalog spans ERP (NetSuite, Salesforce), Data (Genie spaces covering finance, supply chain, headcount, marketing, and people analytics), Comms (Gmail, Slack, Zoom), Productivity (Google Workspace, Granola, Airtable, Lucid, Smartsheet), and Dev (Atlassian, Figma, Webflow). Workato-hosted MCPs fill the gaps where no native vendor MCP exists — Salesforce, Stripe, 3PL Operations, Jira, and Zendesk are all served through the Workato APIM layer.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "80+", label: "BizTech users governed via SCIM+SAML across 4 teams" },
+      { metric: "6", label: "Workato MCPs in enterprise AI catalog" },
+      { metric: "47", label: "Total MCPs planned, 33 active in FY27 Q1" },
+    ],
+  },
+  {
+    id: "integration-observability",
+    tag: "Error Handling · Observability · Platform Engineering",
+    title: "Integration Error Handling & Observability",
+    summary:
+      "Built a two-layer error handling and observability foundation for Samsara's Workato integration platform — a centralized error handler framework using Workato Data Tables for structured runtime error capture and retry logic, paired with a Splunk log streaming pipeline for platform-wide audit visibility across all environments.",
+    stack: ["Workato", "Workato Data Tables", "Splunk", "1Password / KeyVault"],
+    problem:
+      "With 80+ users running integration recipes across Dev, Test, and Prod, there was no standardized way to handle failures. Some recipes wrote errors back to source systems, others silently failed, and there was no centralized record of what went wrong, when, and in which environment. At the platform level, debugging required logging into each environment separately — there was no cross-environment query capability, no audit trail, and error trends were invisible to leadership until incidents escalated.",
+    flows: [
+      {
+        title: "Common Error Handler Framework",
+        steps: [
+          {
+            label: "Reusable Callable Error Handler",
+            detail:
+              "A shared callable recipe acts as the error handling entry point for all integrations on the platform. Any recipe that catches an error calls this handler with structured context — recipe name, job ID, calling job ID, error message, environment, and severity. This eliminates the need for each team to build its own error handling logic and ensures consistent error capture across all 4 business units.",
+          },
+          {
+            label: "Workato Data Tables as Centralized Error Store",
+            detail:
+              "The error handler writes every failure as a structured record into a Workato Data Table — a managed, queryable store within the platform. Each record captures timestamp, recipe ID, environment, error type, affected system, and resolution status. This gives ops teams a live, filterable error log without leaving Workato and provides a single source of truth for open incidents across all integration pipelines.",
+          },
+          {
+            label: "Retry Logic & Alerting",
+            detail:
+              "Based on error type and severity, the handler applies configurable retry logic — transient errors (e.g., API timeouts) are retried with exponential backoff, while data validation failures are routed to a dead-letter queue in the Data Table for manual review. Critical failures trigger Slack alerts to the responsible team's channel, ensuring no failure is silent and incidents are surfaced in real time.",
+          },
+        ],
+      },
+      {
+        title: "Splunk Log Streaming — Platform-Wide Audit",
+        steps: [
+          {
+            label: "Secure Splunk Connection per Environment",
+            detail:
+              "Each Workato environment (Dev, Test, Prod) has a dedicated HTTP connection to Splunk with Header auth. The Splunk HEC token is stored in 1Password and KeyVault — never in recipe code. The base URL targets the FedRAMP-compliant Splunk Cloud endpoint, meeting Samsara's compliance requirements.",
+          },
+          {
+            label: "Structured Event Streaming",
+            detail:
+              "Three event classes are streamed per environment: Job Status (pass/fail per run), Full Job Details (step-level data for every action), and User Activity (all collaborator actions in the workspace). Each event carries a structured JSON payload with source, environment, workspace, and log message — enabling cross-environment Splunk queries and dashboards.",
+          },
+          {
+            label: "Recipe-Level Splunk Logging Template",
+            detail:
+              "A standardized Splunk Connector Template is published for recipe developers — injecting structured log events at key steps with job ID, recipe ID, calling job ID, priority, environment, and custom content. Teams get consistent observability without building bespoke logging into every recipe, and Splunk dashboards reflect both platform-level streams and recipe-level detail in one index.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "1", label: "Shared error handler used across all integration pipelines" },
+      { metric: "0", label: "Silent failures — every error captured in Data Tables or Splunk" },
+      { metric: "3", label: "Environments fully instrumented with cross-env Splunk visibility" },
+    ],
+  },
+  {
     id: "order-lifecycle",
     tag: "Integration Engineering",
     title: "End-to-End Order Lifecycle Automation",
@@ -124,6 +289,63 @@ const caseStudies = [
     ],
   },
   {
+    id: "post-closed-won-sync",
+    tag: "Integration Engineering · Workato",
+    title: "Post-Close Order Sync: Salesforce → NetSuite",
+    summary:
+      "Built a scheduled, SOX-compliant Workato pipeline that queries Salesforce for newly Closed Won opportunities and asynchronously updates each corresponding NetSuite Sales Order with accurate license dates and contract metadata — eliminating manual post-close data entry across the revenue stack.",
+    stack: ["Salesforce", "NetSuite", "Workato", "Splunk"],
+    problem:
+      "After a deal closed in Salesforce, the corresponding NetSuite Sales Orders still required manual updates with license start/end dates and contract metadata. This created data lags and inconsistencies between the CRM and ERP, and posed a compliance risk for SOX-governed revenue records. Finance and RevOps teams were manually reconciling these updates post-close — introducing errors, slowing time-to-entitlement for customers, and leaving no reliable audit trail for auditors.",
+    flows: [
+      {
+        title: "Schedule & Opportunity Query",
+        steps: [
+          {
+            label: "Cron-Driven Trigger",
+            detail:
+              "The recipe fires on a configurable cron expression stored as a project property — giving ops teams full control over run frequency without touching the recipe itself. A guard condition ensures execution only proceeds if a query is present, preventing empty runs.",
+          },
+          {
+            label: "Dynamic Salesforce SOQL Fetch",
+            detail:
+              "The recipe runs a dynamic SOQL query (also stored as a project property) against Salesforce, fetching up to 2,000 Closed Won opportunities per run. Each record includes license start/end dates, NetSuite ID, order number, buyout adjustment flags, and stage metadata.",
+          },
+          {
+            label: "Empty-Result Guard",
+            detail:
+              "If no qualifying opportunities are returned, the recipe exits cleanly with no downstream work triggered — no wasted ERP calls, no noise in logs.",
+          },
+        ],
+      },
+      {
+        title: "Async Processing & Write-Back",
+        steps: [
+          {
+            label: "Per-Opportunity Async Dispatch",
+            detail:
+              "Each opportunity is handed off to a child recipe asynchronously — keeping the main loop fast and fault-isolated per record. One failing record cannot block or corrupt the rest of the batch.",
+          },
+          {
+            label: "NetSuite Sales Order Update",
+            detail:
+              "The child recipe locates the corresponding Sales Order via the NetSuite ID on the Salesforce record and updates it with license start date, license end date, and custom contract fields — ensuring the ERP reflects the exact commercial terms from the CRM.",
+          },
+          {
+            label: "Salesforce Write-Back & Error Handling",
+            detail:
+              "After a successful NetSuite update, the Salesforce opportunity is updated to confirm the sync. If any step fails, the error is caught, logged to Splunk, and a notification is dispatched to stakeholders — ensuring no silent failures on SOX-applicable records.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "0", label: "Manual post-close data entries in NetSuite" },
+      { metric: "2,000", label: "Max records synced per scheduled run" },
+      { metric: "100%", label: "Audit trail on SOX-applicable order updates" },
+    ],
+  },
+  {
     id: "order-creation-engine",
     tag: "Integration Engineering · Workato",
     title: "Multi-Type Order Creation Engine",
@@ -187,6 +409,89 @@ const caseStudies = [
   },
 ];
 
+function MCPRegistryDiagram() {
+  const flowSteps = [
+    { num: "1", label: "Register", who: "Tool Owner", path: "Admin Console → AgentCore" },
+    { num: "2", label: "Review", who: "Platform Admin", path: "Draft → Pending → Approved" },
+    { num: "3", label: "Discover", who: "Agent / Dev", path: "Semantic search by intent" },
+    { num: "4", label: "Consume", who: "AI Agent", path: "Direct MCP session to tool" },
+  ];
+
+  const layers = [
+    { label: "Admin", items: ["Console", "Web Gateway"] },
+    { label: "Services", items: ["Registry API", "Lifecycle Engine"] },
+    { label: "AWS Bedrock", items: ["AgentCore Registry", "AgentCore Gateway", "AgentCore Identity"] },
+    { label: "Consumers", items: ["AI Agents", "MCP Servers"] },
+  ];
+
+  const lifecycle = [
+    { label: "DRAFT", color: "bg-muted/20 text-muted" },
+    { label: "PENDING", color: "bg-accent/10 text-accent" },
+    { label: "APPROVED", color: "bg-green-500/10 text-green-500" },
+    { label: "DEPRECATED", color: "bg-muted/10 text-muted" },
+    { label: "REJECTED", color: "bg-red-500/10 text-red-400" },
+  ];
+
+  return (
+    <div className="mt-6 pt-5 border-t border-border space-y-5">
+      {/* 4-step journey */}
+      <div>
+        <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">End-to-End Journey</p>
+        <div className="flex items-start gap-1 overflow-x-auto pb-1">
+          {flowSteps.map((step, i) => (
+            <div key={step.num} className="flex items-start gap-1 flex-shrink-0">
+              <div className="text-center w-[90px]">
+                <div className="w-7 h-7 rounded-full bg-accent/10 text-accent text-xs font-bold flex items-center justify-center mx-auto mb-2">
+                  {step.num}
+                </div>
+                <p className="text-xs font-semibold text-foreground leading-tight">{step.label}</p>
+                <p className="text-[10px] text-accent mt-0.5">{step.who}</p>
+                <p className="text-[10px] text-muted mt-0.5 leading-tight">{step.path}</p>
+              </div>
+              {i < flowSteps.length - 1 && (
+                <span className="text-muted text-xs mt-3 flex-shrink-0 px-0.5">→</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Architecture layers */}
+      <div>
+        <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">Architecture Layers</p>
+        <div className="grid grid-cols-4 gap-2">
+          {layers.map((layer) => (
+            <div key={layer.label} className="rounded-xl border border-border bg-background p-3">
+              <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">{layer.label}</p>
+              {layer.items.map((item) => (
+                <p key={item} className="text-[11px] text-foreground font-medium leading-snug">{item}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Lifecycle states */}
+      <div>
+        <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">Tool Lifecycle</p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {lifecycle.map((state, i) => (
+            <div key={state.label} className="flex items-center gap-1.5">
+              <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${state.color}`}>
+                {state.label}
+              </span>
+              {i < lifecycle.length - 1 && i !== 2 && (
+                <span className="text-muted text-[10px]">→</span>
+              )}
+              {i === 2 && <span className="text-muted text-[10px]">/</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProcessFlow({ flow }: { flow: (typeof caseStudies)[0]["flows"][0] }) {
   return (
     <div className="bg-surface rounded-2xl border border-border p-6">
@@ -206,6 +511,7 @@ function ProcessFlow({ flow }: { flow: (typeof caseStudies)[0]["flows"][0] }) {
           </li>
         ))}
       </ol>
+      {"diagramId" in flow && flow.diagramId === "mcp-registry" && <MCPRegistryDiagram />}
     </div>
   );
 }
