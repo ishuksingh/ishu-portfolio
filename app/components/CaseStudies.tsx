@@ -232,6 +232,185 @@ const caseStudies = [
     ],
   },
   {
+    id: "contract-cancellation-rma",
+    tag: "Integration Engineering · Workato",
+    title: "Contract Cancellation → NetSuite RMA Engine",
+    summary:
+      "Built an event-driven Workato pipeline that triggers on Salesforce cancellation orders, resolves cross-system ID mappings via Python, creates batched RMAs in NetSuite via RESTlet, and stamps results back to Salesforce — with ROW_LOCK-aware retry logic, sequential fallback, and bi-directional error surfacing across a SOX-applicable workflow.",
+    stack: ["Salesforce", "NetSuite", "Workato", "Python", "Splunk"],
+    problem:
+      "When a customer contract was cancelled, creating the corresponding Return Merchandise Authorizations in NetSuite required mapping cancellation order lines back to their original NetSuite order IDs, grouping them correctly, and writing results back to Salesforce Order Products. Salesforce ROW_LOCK errors on bulk updates caused silent partial failures, orders with missing NetSuite IDs fell through with no feedback to ops, and NetSuite RESTlet timeouts left RMA creation in an unknown state — with no audit trail linking cancellation events to their outcomes.",
+    flows: [
+      {
+        title: "Event Intake & ID Resolution",
+        steps: [
+          {
+            label: "Salesforce Platform Event Trigger",
+            detail:
+              "The recipe is triggered by a Salesforce Platform Event the moment a cancellation order is processed — fully event-driven with zero polling lag. The incoming payload is logged to Splunk immediately.",
+          },
+          {
+            label: "Cancellation Order SOQL Lookup",
+            detail:
+              "A SOQL query fetches the Cancellation Order and its linked Opportunity, close date, license term, and the mapping between each Order Item and its original NetSuite Order ID — building the cross-system record map needed for RMA grouping.",
+          },
+          {
+            label: "Python ID Consolidation & Grouping",
+            detail:
+              "A Python recipe function formats all original NetSuite Order IDs into a SQL IN clause for a second SOQL lookup that resolves Original Opportunity Line Item IDs to Original Quote Line IDs. A second Python step then groups the full dataset by OriginalNetsuiteOrderId — ensuring each downstream RMA call receives a correctly scoped payload.",
+          },
+        ],
+      },
+      {
+        title: "RMA Creation & Salesforce Write-Back",
+        steps: [
+          {
+            label: "NetSuite RMA via RESTlet",
+            detail:
+              "For each grouped batch, the process recipe calls a NetSuite RESTlet to create the RMA — with batch size and RESTlet URL both controlled by project properties, allowing tuning without touching recipe code.",
+          },
+          {
+            label: "Composite Salesforce Stamping",
+            detail:
+              "After RMA creation, each batch result is written back to Salesforce Order Products via composite update — stamping the RMA ID on success or a structured error message on failure, respecting the SF 200-record batch API limit.",
+          },
+          {
+            label: "Missing NS ID Handling",
+            detail:
+              "Order lines where the original NetSuite ID was absent are identified upfront, logged to Splunk, and their error messages are stamped directly onto Salesforce Order Products — giving ops teams immediate visibility without requiring Splunk access.",
+          },
+        ],
+      },
+      {
+        title: "Fault-Tolerant Retry Logic",
+        steps: [
+          {
+            label: "ROW_LOCK-Aware Retry",
+            detail:
+              "If a Salesforce composite batch update fails, the recipe waits a configurable number of seconds (set via project property) before retrying — specifically to avoid Salesforce ROW_LOCK contention on high-volume cancellation events where multiple records update the same parent.",
+          },
+          {
+            label: "Sequential Record-by-Record Fallback",
+            detail:
+              "If the batch retry still fails, the recipe falls back to sequential one-by-one updates — trading throughput for reliability to ensure the maximum number of records are stamped before stopping.",
+          },
+          {
+            label: "NetSuite Timeout Recovery",
+            detail:
+              "If the NS RESTlet call times out (NS RMA scriptlets are known to exceed Workato's timeout threshold), the recipe retries the NS call, stamps a structured error on all SF Order Lines in the batch, and stops cleanly — preventing silent partial RMA creation from reaching downstream systems.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "Real-time", label: "Event-driven trigger, zero polling lag" },
+      { metric: "0", label: "Silent failures — every error stamped to Salesforce" },
+      { metric: "100%", label: "Splunk audit trail per cancellation event" },
+    ],
+  },
+  {
+    id: "returns-automation-engine",
+    tag: "Integration Engineering · Workato",
+    title: "Multi-Type Returns Automation Engine",
+    summary:
+      "Built a Workato-orchestrated returns processing engine that routes three distinct RMA types — Remorse, Delinquent, and Exchange/Warranty Exchange — from NetSuite into Salesforce through type-specific pipelines, with shared common infrastructure, idempotency guards, atomic rollback, and full Splunk observability across a SOX-applicable workflow.",
+    stack: ["NetSuite", "Salesforce CPQ", "Workato", "Python", "Splunk"],
+    problem:
+      "Processing customer returns required different Salesforce record types depending on the return reason — a remorse return needed a CPQ contract amendment, a delinquent return needed a rebate opportunity, and an exchange needed a return opportunity with line items and serial numbers. All three originated as NetSuite RMAs but landed in completely different Salesforce data shapes with different downstream actions. There was no shared infrastructure, no guard against duplicate processing, and no consistent error handling — failed records left NetSuite and Salesforce in inconsistent states with no visibility into what went wrong.",
+    flows: [
+      {
+        title: "Shared Infrastructure & Scheduling",
+        steps: [
+          {
+            label: "NetSuite Saved Search Polling",
+            detail:
+              "Each return type's main recipe runs on a schedule and queries a NetSuite Saved Search (or Invoice Saved Search for exchanges), pulling header-level RMA data for new and resent records. A guard condition ensures execution only proceeds when records are present.",
+          },
+          {
+            label: "Idempotency Lock",
+            detail:
+              "Before dispatching any work, a shared batch update recipe sets 'Sync in Progress = TRUE' on all fetched RMA records in NetSuite — preventing duplicate processing if the scheduler fires again before the previous run completes.",
+          },
+          {
+            label: "Async Per-Record Dispatch",
+            detail:
+              "Each RMA is handed off to a type-specific processing recipe asynchronously. Failures in one record are fully isolated — they cannot block or corrupt the rest of the batch.",
+          },
+          {
+            label: "Shared RMA Data Retrieval",
+            detail:
+              "A common recipe function fetches header and item-level data from a NetSuite RESTlet, then runs SuiteQL to resolve the customer's shipping addresses — including pagination logic to handle customers with over 1,000 address records.",
+          },
+        ],
+      },
+      {
+        title: "Remorse → CPQ Amendment",
+        steps: [
+          {
+            label: "Salesforce Orders API Invocation",
+            detail:
+              "For each Remorse RMA, the recipe asynchronously calls Salesforce's Orders API to initiate a CPQ contract amendment — the return triggers an amendment on the existing contract rather than a new record.",
+          },
+          {
+            label: "Amendment Callback API",
+            detail:
+              "Salesforce calls back into a Workato-hosted API endpoint once the amendment is created. The callback validates the payload, then asynchronously dispatches downstream to add return products and finalize the CPQ quote.",
+          },
+          {
+            label: "Quote Finalization & Write-Back",
+            detail:
+              "The downstream recipe adds return products to the CPQ quote and saves it — completing the amendment loop and stamping the NetSuite RMA with the Salesforce record ID.",
+          },
+        ],
+      },
+      {
+        title: "Delinquent → Rebate Opportunity",
+        steps: [
+          {
+            label: "Python Validation",
+            detail:
+              "After fetching RMA data and querying Salesforce for the linked Opportunity and Account, a Python recipe function validates the logic flow — checking owner active status and field requirements before any write operations begin.",
+          },
+          {
+            label: "Atomic Opportunity Creation",
+            detail:
+              "The recipe creates a Rebate Opportunity in Salesforce, then builds the opportunity product list by querying pricebook entries per line item. If any product query fails, the entire opportunity is deleted before stopping — leaving no partial records in Salesforce.",
+          },
+          {
+            label: "Composite Product Write & NS Stamp",
+            detail:
+              "Opportunity products are written in a single composite create call. Partial failures trigger opportunity deletion and halt execution. On success, the NetSuite RMA is stamped with the Salesforce record ID and sync flags are cleared.",
+          },
+        ],
+      },
+      {
+        title: "Exchange / Warranty Exchange → Return Opportunity",
+        steps: [
+          {
+            label: "Return Opportunity Creation",
+            detail:
+              "The recipe queries Salesforce for Opportunity and Account data, maps the RMA payload to a Return Opportunity, and creates it in Salesforce. Serial numbers are then stamped in a separate update call — decoupled from creation to avoid payload size limits.",
+          },
+          {
+            label: "Line Item Construction with Rollback",
+            detail:
+              "For each RMA line, the recipe queries both Opportunity Line Item details and the PricebookEntry ID. If either query fails, the Return Opportunity is immediately deleted before halting — ensuring no half-created records persist.",
+          },
+          {
+            label: "NetSuite Write-Back",
+            detail:
+              "On success, the NetSuite RMA is stamped with the Salesforce Opportunity ID and the Sync in Progress flag is cleared — confirming the full round-trip between ERP and CRM.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "3", label: "Return types handled in one governed platform" },
+      { metric: "0", label: "Duplicate processing via idempotency lock" },
+      { metric: "100%", label: "Splunk audit trail per RMA across all flows" },
+    ],
+  },
+  {
     id: "credit-amount-api",
     tag: "API Engineering · Workato",
     title: "Returns Credit Amount Calculation API",
@@ -405,6 +584,63 @@ const caseStudies = [
       { metric: "3", label: "Order types handled in one unified pipeline" },
       { metric: "0", label: "Duplicate ERP orders via deduplication guard" },
       { metric: "100%", label: "Errors surfaced back to Salesforce in real time" },
+    ],
+  },
+  {
+    id: "close-opportunity-orders",
+    tag: "Integration Engineering · Workato",
+    title: "Fulfilled Order Closure — CPQ Event to NetSuite",
+    summary:
+      "Built a Workato recipe that listens for Salesforce CPQ Fulfilled order events and automatically updates the corresponding NetSuite Sales Order with type-specific fulfillment dates — with a timing guard, per-type payload mapping, retry logic, and bidirectional error write-back.",
+    stack: ["Salesforce CPQ", "NetSuite", "Workato", "Splunk"],
+    problem:
+      "When a CPQ order was marked Fulfilled in Salesforce, the corresponding NetSuite Sales Order had to be manually updated with contract dates, ship dates, and trial-specific body fields — with different fields required for Revenue versus Free Trial orders. There was no handling for Salesforce data consistency lag (License Start Date not yet matching Close Date at event fire time), no retry on NetSuite update failures, and no way for ops teams to see sync errors without querying Splunk logs directly.",
+    flows: [
+      {
+        title: "Event Ingestion & Pre-Flight Validation",
+        steps: [
+          {
+            label: "CPQ Order Event Trigger",
+            detail:
+              "The recipe is triggered by a Salesforce CPQ Order Event Platform Event, filtered to Fulfilled status across three order types: Revenue Opportunity, Free Trial Opportunity, and Beta Program. This keeps the integration event-driven and eliminates polling overhead.",
+          },
+          {
+            label: "Timing Guard — 60s Data Consistency Wait",
+            detail:
+              "At the moment of event fire, Salesforce License Start Date can lag behind Close Date due to CPQ processing order. The recipe detects this mismatch and waits 60 seconds before re-fetching the opportunity — preventing stale dates from being written to NetSuite. If the re-fetch fails, the error is logged to Splunk and execution stops cleanly.",
+          },
+          {
+            label: "NetSuite ID Validation & Sales Order Lookup",
+            detail:
+              "Before any ERP write, the recipe validates that a NetSuite ID is stamped on the Salesforce Order record. If missing, execution stops with a structured error. If present, the recipe looks up the NetSuite Sales Order by internal ID — with up to 3 automatic retries — and logs the result to Splunk.",
+          },
+        ],
+      },
+      {
+        title: "Type-Specific Update & Write-Back",
+        steps: [
+          {
+            label: "Revenue & Beta Program — Contract Line Date Mapping",
+            detail:
+              "For Revenue and Beta Program orders, a Workato payload mapper transforms the Salesforce fulfillment data into the NetSuite Sales Order schema — mapping transaction date, ship date, and per-line contract start/end dates (custcol_swe_contract_start_date, custcol_swe_contract_end_date) at the item-line level.",
+          },
+          {
+            label: "Free Trial — Trial Date Body Field Mapping",
+            detail:
+              "Free Trial orders use a separate payload mapper that writes trial-specific fields directly to the Sales Order body — trial start date (custbody_trial_start_date) and trial end date (custbody_trial_end_date) — alongside ship date and transaction date. This separation prevents Revenue field logic from bleeding into trial records.",
+          },
+          {
+            label: "NetSuite Update with Retry & Salesforce Write-Back",
+            detail:
+              "The NetSuite Sales Order update runs with up to 3 retries on transient failure. On success, sync flags are cleared on the Salesforce Order (Mulesoft_Sync_Error__c wiped, Sync_in_Progress reset to false) and the result is logged to Splunk. On failure, the error reason is written directly back to the Salesforce Order record — giving ops teams immediate visibility without log access.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "0", label: "Manual NetSuite updates on order fulfillment" },
+      { metric: "60s", label: "Max recovery window from data timing lag" },
+      { metric: "100%", label: "Audit trail per close event in Splunk" },
     ],
   },
 ];
