@@ -78,6 +78,57 @@ export const CASE_STUDIES: CaseStudy[] = [
     ],
     stack: ["Workato", "Salesforce CPQ", "NetSuite", "Python", "Splunk"],
   },
+  {
+    id: "workato-enterprise-platform",
+    title: "Workato ONE — Enterprise Governance & AI-Native MCP Strategy",
+    tags: ["workato", "workato one", "rbac", "scim", "saml", "okta", "mcp", "mcp registry", "agentcore", "aws bedrock", "enterprise governance", "access control", "collaborator groups", "platform engineering", "ai strategy", "mcp catalog", "salesforce mcp", "zendesk mcp", "jira mcp", "3pl mcp", "langfuse", "genie", "s3", "samsara"],
+    summary:
+      "Architected Samsara's enterprise integration platform governance from scratch — designing a SCIM+SAML RBAC framework for 80+ BizTech users across 4 business units, building Workato-native MCPs as part of a 47-tool enterprise AI catalog, wiring agentic observability via Genie conversation logging to AWS S3, and co-designing an MCP Registry built on Amazon Bedrock AgentCore — using AgentCore Registry, Gateway, and Identity for governed, zero-trust AI tool discovery at enterprise scale.",
+    problem:
+      "Samsara's integration platform (Workato ONE) was scaling fast across four business units — GTMS, CorpSys, IT+PMO, and IDEA — with no unified access control model. Developers had inconsistent permissions across Dev, Test, and Prod environments, production deployments were ad-hoc with no gating, and there was no audit trail for platform activity. In parallel, the AI team needed to expose internal system data to Claude agents at enterprise scale — but there was no governed way to register, approve, or discover MCP tools, no security review layer, and no catalog for the organization to build on.",
+    solution:
+      "Built a 4-part enterprise platform strategy: (1) RBAC 2.0 — SCIM auto-provisioning via Okta, SAML-driven per-environment role assignment (Samsara Manager/Developer/ViewOnly/Release Manager), standardized collaborator groups (TeamAdmins, Devs, ViewOnly, ProdOps) across GTMS/CorpSys/IT/IDEA teams, and a time-bounded production deployment model using ProdOps + Release Manager role escalation. (2) Workato MCP Layer — 6 Workato APIM-hosted MCPs exposing Salesforce, Stripe, 3PL Operations, Jira, and Zendesk to Claude agents via the Workato API Management governance layer. (3) Agentic Observability — Genie conversation logs (queries, agent responses, tool invocations) streamed to AWS S3 and ingested into Langfuse for LLM trace visibility and continuous agent quality improvement. (4) MCP Registry on Amazon Bedrock AgentCore — AgentCore Registry as system of record, AgentCore Gateway as the single secure entry point for agentic traffic (converting APIs/services into MCP-compatible tools), AgentCore Identity for zero-trust JWT-based auth, lifecycle governance (Draft→Pending→Approved), and semantic search across a 47-tool enterprise catalog.",
+    outcomes: [
+      "80+ BizTech users governed via SCIM+SAML across 4 teams with zero manual provisioning",
+      "6 Workato MCPs live in enterprise AI catalog (Salesforce, Stripe, 3PL, Jira, Zendesk)",
+      "47-tool MCP catalog planned, 33 active in FY27 Q1",
+    ],
+    stack: ["Workato ONE", "Okta SCIM/SAML", "AWS Bedrock AgentCore", "Langfuse", "Claude AI"],
+  },
+  {
+    id: "integration-observability",
+    title: "Integration Error Handling & Observability",
+    tags: ["error handling", "observability", "splunk", "log streaming", "data tables", "workato data tables", "error handler", "retry", "alerting", "slack alerts", "audit", "platform engineering", "monitoring", "incident response", "logging template", "recipe logging", "splunk connector"],
+    summary:
+      "Built a two-layer error handling and observability foundation for Samsara's Workato integration platform — a centralized error handler framework using Workato Data Tables for structured runtime error capture and retry logic, paired with a Splunk log streaming pipeline for platform-wide audit visibility across all environments.",
+    problem:
+      "With 80+ users running integration recipes across Dev, Test, and Prod, there was no standardized way to handle failures. Some recipes wrote errors back to source systems, others silently failed, and there was no centralized record of what went wrong, when, and in which environment. Debugging required logging into each environment separately with no cross-environment query capability, and error trends were invisible to leadership until incidents escalated.",
+    solution:
+      "Built two complementary layers: (1) Common Error Handler Framework — a shared callable recipe that acts as the error handling entry point for all integrations. Any recipe catches an error and calls this handler with structured context (recipe name, job ID, calling job ID, error message, environment, severity). The handler writes every failure as a structured record into a Workato Data Table (timestamp, recipe ID, environment, error type, affected system, resolution status) — giving ops teams a live filterable error log without leaving Workato. Configurable retry logic handles transient errors with exponential backoff; critical failures trigger Slack alerts to the responsible team's channel. (2) Splunk Log Streaming — each Workato environment (Dev/Test/Prod) streams three event classes to Splunk via a Header-auth HTTP connection (HEC token in 1Password/KeyVault): Job Status, Full Job Details, and User Activity. A standardized Splunk Connector Template is published for developers to inject structured log events at key recipe steps with job ID, recipe ID, calling job ID, priority, environment, and custom content.",
+    outcomes: [
+      "1 shared error handler used across all integration pipelines — zero ad-hoc error handling",
+      "Zero silent failures — every error captured in Workato Data Tables or Splunk",
+      "3 environments (Dev/Test/Prod) fully instrumented with cross-environment Splunk visibility",
+    ],
+    stack: ["Workato", "Workato Data Tables", "Splunk", "1Password", "KeyVault"],
+  },
+  {
+    id: "close-opportunity-orders",
+    title: "Fulfilled Order Closure — CPQ Event to NetSuite",
+    tags: ["order closure", "cpq order event", "salesforce", "netsuite", "workato", "fulfillment", "revenue order", "free trial", "beta program", "platform event", "splunk", "sync", "payload mapper"],
+    summary:
+      "Built a Workato recipe that listens for Salesforce CPQ Fulfilled order events and automatically updates the corresponding NetSuite Sales Order with type-specific fulfillment dates — with a timing guard, retry logic, and bidirectional error write-back.",
+    problem:
+      "When a CPQ order was marked Fulfilled in Salesforce, the NetSuite Sales Order had to be manually updated with contract dates, ship dates, and trial dates — with different fields required for Revenue versus Free Trial orders. There was no handling for Salesforce data consistency lag, no retry on NetSuite failures, and no way for ops teams to see sync errors without querying logs directly.",
+    solution:
+      "Built a Workato recipe triggered by CPQ Order Events filtered for Fulfilled status across Revenue, Free Trial, and Beta Program order types. The recipe validates that the NetSuite ID exists on the Salesforce Order, applies a 60-second timing guard when License Start Date doesn't yet match Close Date, looks up the Sales Order in NetSuite (3 retries), and routes by type — Revenue/Beta use a payload mapper for contract line dates and ship date; Free Trial uses a separate mapper for trial-specific body fields. On NetSuite update success, sync error flags are cleared on the Salesforce Order. On failure, the error reason is written back to the Salesforce Order record. Every step is logged to Splunk.",
+    outcomes: [
+      "Zero manual NetSuite updates on order fulfillment",
+      "100% audit trail per close event in Splunk",
+      "60s max recovery window from Salesforce data timing inconsistencies",
+    ],
+    stack: ["Salesforce CPQ", "NetSuite", "Workato", "Splunk"],
+  },
 ];
 
 export function searchCaseStudies(query: string): CaseStudy[] {
