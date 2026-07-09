@@ -170,6 +170,83 @@ const caseStudies = [
     ],
   },
   {
+    id: "workato-solution-consulting",
+    tag: "Solution Consulting · Customer Success",
+    title: "Enterprise Customer Onboarding — Workato Solution Consulting",
+    summary:
+      "Led end-to-end post-sales onboarding for 18 mid-market and enterprise customers in 12 months — from discovery through go-live — achieving a 9.5 CSAT score through structured platform enablement, POC recipe builds, task optimization, and hands-on go-live support.",
+    stack: ["Workato", "Salesforce", "NetSuite", "REST APIs", "Slack"],
+    problem:
+      "Mid-market and enterprise customers purchasing Workato faced a steep ramp to production value. Without structured onboarding, customers struggled to translate integration requirements into working recipes, platform capabilities were underutilized, and time-to-value stretched from weeks into months. Post-sales support was reactive — customers lacked the enablement to become self-sufficient on the platform.",
+    flows: [
+      {
+        title: "Discovery & Solution Design",
+        steps: [
+          {
+            label: "Integration Landscape Mapping",
+            detail:
+              "Every onboarding started with a structured discovery session — mapping the customer's existing systems, data flows, and integration pain points. Business requirements were translated into a prioritized integration roadmap, ensuring the build phase started with a validated design rather than assumptions.",
+          },
+          {
+            label: "Use Case Prioritization",
+            detail:
+              "From the discovery output, the highest-value, lowest-complexity use cases were identified as quick wins for the POC phase. This framing gave customers early momentum and demonstrated platform value before tackling complex, multi-system flows.",
+          },
+        ],
+      },
+      {
+        title: "POC Recipe Builds",
+        steps: [
+          {
+            label: "Hands-On Recipe Development",
+            detail:
+              "Built proof-of-concept recipes directly in the customer's Workato environment — covering the priority use cases identified in discovery. These POC recipes served as validated starting templates customers could extend, reducing the time their internal teams needed to get to production.",
+          },
+          {
+            label: "Architecture Review & Handoff",
+            detail:
+              "Each POC was reviewed with the customer's technical team — walking through the recipe design, error handling patterns, and extension points. The goal was a handoff the customer could build on independently, not a dependency on continued consulting support.",
+          },
+        ],
+      },
+      {
+        title: "Platform Enablement",
+        steps: [
+          {
+            label: "Tailored Training Sessions",
+            detail:
+              "Delivered platform enablement sessions calibrated to the customer's technical level — covering Workato fundamentals, recipe design patterns, connector configuration, lookup tables, and error handling best practices. Sessions were hands-on, not slide-driven, so customers left with working knowledge rather than passive familiarity.",
+          },
+          {
+            label: "Task Optimization",
+            detail:
+              "Audited customer recipes for task consumption efficiency — identifying redundant polling, oversized batch sizes, and unnecessary triggers. Optimized recipes reduced task usage without sacrificing functionality, directly lowering platform costs and improving job performance.",
+          },
+        ],
+      },
+      {
+        title: "Go-Live Support",
+        steps: [
+          {
+            label: "UAT & Production Readiness",
+            detail:
+              "Supported customers through user acceptance testing — validating edge cases, data mapping accuracy, and error path coverage before go-live. Worked alongside internal stakeholders to ensure the production deployment was de-risked and sign-off criteria were met.",
+          },
+          {
+            label: "Post-Launch Stabilization",
+            detail:
+              "Remained available through the stabilization window post-go-live — monitoring early job runs, resolving unexpected failures, and tuning recipe logic based on real production data. This support window was the key driver of customer confidence and contributed directly to the 9.5 CSAT outcome.",
+          },
+        ],
+      },
+    ],
+    outcomes: [
+      { metric: "18", label: "Customers onboarded across mid-market and enterprise segments in 12 months" },
+      { metric: "9.5", label: "CSAT score across all onboardings" },
+      { metric: "↑", label: "Faster time-to-value — customers went live ahead of expected timelines through structured enablement" },
+    ],
+  },
+  {
     id: "order-lifecycle",
     tag: "Integration Engineering",
     title: "End-to-End Order Lifecycle Automation",

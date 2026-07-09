@@ -113,6 +113,23 @@ export const CASE_STUDIES: CaseStudy[] = [
     stack: ["Workato", "Workato Data Tables", "Splunk", "1Password", "KeyVault"],
   },
   {
+    id: "workato-solution-consulting",
+    title: "Enterprise Customer Onboarding — Workato Solution Consulting",
+    tags: ["workato", "solution consulting", "customer success", "onboarding", "platform enablement", "poc", "proof of concept", "go-live", "task optimization", "csat", "mid-market", "enterprise", "post-sales", "integration consulting", "discovery", "recipe builds", "time to value"],
+    summary:
+      "Led end-to-end post-sales onboarding for 18 mid-market and enterprise customers in 12 months — from discovery through go-live — achieving a 9.5 CSAT score through structured platform enablement, POC recipe builds, task optimization, and hands-on go-live support.",
+    problem:
+      "Mid-market and enterprise customers purchasing Workato faced a steep ramp to production value. Without structured onboarding, customers struggled to translate integration requirements into working recipes, platform capabilities were underutilized, and time-to-value stretched from weeks into months. Post-sales support was reactive — customers lacked the enablement to become self-sufficient on the platform.",
+    solution:
+      "Delivered a 4-phase onboarding model across 18 customers: (1) Discovery & Solution Design — structured sessions to map integration landscapes, identify pain points, and prioritize use cases before any build begins. (2) POC Recipe Builds — hands-on recipe development in the customer's Workato environment covering priority use cases, with an architecture review and handoff designed for customer independence. (3) Platform Enablement — tailored training sessions on Workato fundamentals, recipe design patterns, error handling, and task optimization — reducing platform costs by right-sizing task consumption. (4) Go-Live Support — UAT validation, production readiness review, and post-launch stabilization to ensure customers went live confidently and issues were resolved before the support window closed.",
+    outcomes: [
+      "18 customers onboarded across mid-market and enterprise segments in 12 months",
+      "9.5 CSAT score across all onboardings",
+      "Faster time-to-value — customers went live ahead of expected timelines through structured enablement",
+    ],
+    stack: ["Workato", "Salesforce", "NetSuite", "REST APIs", "Slack"],
+  },
+  {
     id: "close-opportunity-orders",
     title: "Fulfilled Order Closure — CPQ Event to NetSuite",
     tags: ["order closure", "cpq order event", "salesforce", "netsuite", "workato", "fulfillment", "revenue order", "free trial", "beta program", "platform event", "splunk", "sync", "payload mapper"],
